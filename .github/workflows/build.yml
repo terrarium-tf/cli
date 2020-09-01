@@ -1,0 +1,28 @@
+on: [push]
+
+jobs:
+  python:
+    runs-on: ubuntu-20.04
+    steps:
+    #setup
+    - uses: actions/checkout@v2
+    - name: Cache pip
+      uses: actions/cache@v2
+      with:
+        # This path is specific to Ubuntu
+        path: ~/.cache/pip
+        # Look to see if there is a cache hit for the corresponding requirements file
+        key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+          ${{ runner.os }}-
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+    - name: Get python dependencies
+      run: |
+        pip install -r requirements.txt
+        pip3 install -U nuitka
+
+    - name: build binary
+      run: nuitka3 --standalone --recurse-all --recurse-stdlib ./terrarium
