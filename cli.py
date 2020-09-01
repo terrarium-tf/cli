@@ -1,8 +1,9 @@
 import json
 import logging
 import os
-
+import sys
 import click
+
 from python_terraform import Terraform, IsFlagged
 
 
@@ -39,12 +40,12 @@ def initialize_tf(stack) -> Terraform:
     return Terraform(working_dir=stack)
 
 
-def execute(stack: str, command: str, args: list):
+def execute(stack: str, command: str, args: list, var:dict = {}):
     t = initialize_tf(stack)
 
-    return_code, stdout, stderr = t.cmd(command, *args, capture_output=False, no_color=None)
+    return_code, stdout, stderr = t.cmd(command, *args, capture_output=False, no_color=None, **var)
 
-    exit(return_code)
+    sys.exit(return_code)
 
 
 def workspaced_command(stack: str, environment: str, command: str, args: list, var_file = None):
@@ -63,7 +64,7 @@ def workspaced_command(stack: str, environment: str, command: str, args: list, v
 
     return_code, stdout, stderr = t.cmd(command, *args, capture_output=False, no_color=None, var=vars)
 
-    exit(return_code)
+    sys.exit(return_code)
 
 
 @click.command()
@@ -98,7 +99,7 @@ def init(initial, stack):
             "key={}.tfstate".format(app_vars['name'])
         ]
 
-    execute(stack, 'init', ['.'])
+    execute(stack, 'init', ['.'], options)
 
 
 @click.command()
@@ -120,11 +121,11 @@ def apply(environment, stack):
     if os.getenv('CI') is not None:
         plan_file = "{}-{}.plan".format(stack.replace('/', '-'), environment)
         t.plan(capture_output=False, var=vars, no_color=None, out=plan_file)
-        return_code, stdout, stderr = t.apply(plan_file, capture_output=False, no_color=None, var=vars)
+        return_code, stdout, stderr = t.apply(plan_file, capture_output=False, no_color=None, var=None, var_file=None)
     else:
         return_code, stdout, stderr = t.apply(capture_output=False, var=vars, no_color=None)
 
-    exit(return_code)
+    sys.exit(return_code)
 
 
 @click.command()

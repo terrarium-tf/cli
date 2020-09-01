@@ -17,10 +17,10 @@ def terrarium():  # pragma: no cover
 terrarium.add_command(init)
 terrarium.add_command(apply)
 terrarium.add_command(destroy)
-terrarium.add_command(fmt)
 terrarium.add_command(import_cmd)
 terrarium.add_command(rm)
 terrarium.add_command(taint)
+terrarium.add_command(fmt)
 
 if __name__ == '__main__':  # pragma: no cover
     terrarium()
