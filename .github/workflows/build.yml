@@ -31,7 +31,7 @@ jobs:
 
     - name: Generate the artifacts
       run: |
-        nuitka3 --standalone --recurse-all ./terrarium
+        nuitka3 --standalone --follow-imports --python-flag=no_site ./terrarium
 
     - uses: montudor/action-zip@v0.1.0
       with:
@@ -71,7 +71,7 @@ jobs:
 
     - name: Generate the artifacts
       run: |
-        nuitka3 --standalone --recurse-all ./terrarium
+        nuitka3 --standalone --follow-imports --python-flag=no_site ./terrarium
         zip -qq -r ./terrarium-osx.zip ./terrarium.dist
 
     - name: Upload the artifacts
