@@ -99,7 +99,7 @@ def init(initial, stack):
             "key={}.tfstate".format(app_vars['name'])
         ]
 
-    execute(stack, 'init', ['.'], options)
+    execute(stack, 'init', [], options)
 
 
 @click.command()
