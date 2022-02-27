@@ -2,6 +2,8 @@
 
 > a tiny wrapper for Terraform to make loading env vars transparent by convention
 
+[![Coverage Status](https://coveralls.io/repos/github/terrarium-tf/cli/badge.svg?branch=main)](https://coveralls.io/github/terrarium-tf/cli?branch=main)
+
 ## Setup
 
 download the binary matching your OS from [here](https://github.com/terrarium-tf/cli/releases)
@@ -10,113 +12,48 @@ download the binary matching your OS from [here](https://github.com/terrarium-tf
 
 ```
  |- global.tfvars.json # variables available to all stacks (relative to cwd)
+ |- stage.tfvars.json # variables available to all stacks using the "stage" workspace (relative to cwd)
  |
  | - stacks
     |
     | - foo
         | - app.tfvars.json # default variables for this stack
-        | - default.tfvars.json # variables for the default workspace (environment)
         | - stage.tfvars.json # variables for the stage workspace (environment)
         |
         | - main.tf your stack entrypoint
-```
+
 
 ## Command
 
 ```
 $ ./terrarium
-Usage: terrarium [OPTIONS] COMMAND [ARGS]...
+A longer description that spans multiple lines and likely contains
+examples and usage of using your application. For example:
 
-  terrarium cli
+Cobra is a CLI library for Go that empowers applications.
+This application is a tool to generate the needed files
+to quickly create a Cobra application.
 
-Options:
-  --version  Show the version and exit.
-  --help     Show this message and exit.
+Usage:
+terrarium [command]
 
-Commands:
-  apply    apply a given stack
-  destroy  destroy a given stack
-  fmt      format a given stack
-  import   import a given stack
-  init     initialize a given stack
-  rm       import a given stack
-  taint    import a given stack
+Available Commands:
+apply       A brief description of your command
+completion  Generate the autocompletion script for the specified shell
+destroy     A brief description of your command
+help        Help about any command
+import      A brief description of your command
+init        A brief description of your command
+plan        A brief description of your command
+remove      A brief description of your command
+
+Flags:
+-h, --help               help for terrarium
+-t, --terraform string   terraform binary found in your path (default "/usr/local/bin/terraform")
+-v, --verbose            display extended informations
+
+Use "terrarium [command] --help" for more information about a command.
 ```
-
-### apply
-
-rollout a stack
-
-```shell script
-$ ./terraform apply default stacks/foo
-using config global.tfvars.json
-using config stacks/foo/app.tfvars.json
-using config stacks/foo/default.tfvars.json
-```
-
-another environment (terraform workspace)
-```shell script
-$ ./terraform apply stage stacks/foo
-using config global.tfvars.json
-using config stacks/foo/app.tfvars.json
-using config stacks/foo/stage.tfvars.json
-```
-
-### destroy
-
-destroys a stack
-
-```shell script
-$ ./terraform destroy default stacks/foo
-```
-
-### fmt
-
-terraform format
-
-```shell script
-$ ./terraform fmt stacks/foo
-```
-
-### import
-
-import an existing resource into the stack
-
-```shell script
-$ ./terraform import default stacks/foo aws_ecs_cluster.cluster ARN
-```
-
-### rm
-
-removes an existing resource from the state
-
-```shell script
-$ ./terraform rm default stacks/foo aws_ecs_cluster.cluster
-```
-
-
-### taint
-
-taints a specific resource for recreation
-
-```shell script
-$ ./terraform taint default stacks/foo aws_ecs_cluster.cluster
-```
-
-### init
-
-initializes a stack
-
-```shell script
-$ ./terraform init stacks/foo
-```
-
-initializes a stack (without a remote backend, probably only once at the very first beginning)
-
-```shell script
-$ ./terraform init --initial stacks/foo
-```
-
 
 ## Use within Github-Actions
 
@@ -137,7 +74,7 @@ jobs:
       uses: terrarium-tf/github-action@vmaster
 
     - name: "default/foo stack"
-      run: terrarium apply default stacks/foo
+      run: terrarium apply stage stacks/foo
 
 ```
 
@@ -146,23 +83,17 @@ jobs:
 checkout the source and install python dependencies with pip
 
 ```shell script
-$ pip3 -r requirements.txt
+$ go get
 ```
 
-use the python script
-
 ```shell script
-$ ./terrarium
+$ go run main.go
 ```
 
 build the binary
 
 ```shell script
-$ python3 -m nuitka --follow-imports ./terrarium
-$ cp ./terrarium.bin /usr/local/bin/terrarium
+$ goreleaser build --snapshot
+$ cp ./dist/cli_xxx/cli /usr/local/bin/terrarium
 $ chmod a+x /usr/local/bin/terrarium
 ```
-
-## TODO
-
-* tests

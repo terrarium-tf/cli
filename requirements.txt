@@ -1,2 +1,0 @@
-click>=7.1
-python-terraform>=0.10.1
