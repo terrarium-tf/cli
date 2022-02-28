@@ -64,7 +64,7 @@ func Vars(cmd cobra.Command, env string, stackPath string) ([]string, map[string
 		cmd.Println("")
 		cmd.Printf(InfoColorLine, "Collected vars:")
 		maxlen := 0
-		for k, _ := range vars {
+		for k := range vars {
 			if len(k) > maxlen {
 				maxlen = len(k)
 			}

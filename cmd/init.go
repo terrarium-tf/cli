@@ -127,7 +127,7 @@ func configureStateKey(cmd cobra.Command, mergedVars map[string]interface{}, arg
 	key := lib.GetVar("name", cmd, mergedVars, false)
 	if key == "" {
 		// no bucket defined, so generate a unique name
-		key = fmt.Sprintf("%s", path.Base(args[1]))
+		key = path.Base(args[1])
 	}
 	return tfexec.BackendConfig(fmt.Sprintf("key=%s.tfstate", key))
 }
