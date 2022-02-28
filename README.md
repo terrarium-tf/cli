@@ -11,6 +11,11 @@
 * switches to the given workspace (can create new one)
 * runs the given terraform command with the multiple -var-files options in correct order.
 
+using those awesome tools:
+
+* [terraform-exec](https://github.com/hashicorp/terraform-exec)
+* [cobra](https://github.com/spf13/cobra)
+
 ## Setup
 
 download the binary matching your OS from [here](https://github.com/terrarium-tf/cli/releases)
