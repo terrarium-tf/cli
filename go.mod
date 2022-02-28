@@ -16,3 +16,5 @@ require (
 	github.com/zclconf/go-cty v1.10.0 // indirect
 	golang.org/x/text v0.3.7 // indirect
 )
+
+replace github.com/hashicorp/terraform-exec v0.16.0 => github.com/digitalkaoz/terraform-exec v0.16.1-0.20220222225145-2509737b3247
