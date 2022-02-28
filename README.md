@@ -4,6 +4,7 @@
 
 [![Coverage Status](https://coveralls.io/repos/github/terrarium-tf/cli/badge.svg?branch=main)](https://coveralls.io/github/terrarium-tf/cli?branch=main)
 [![Test & Build](https://github.com/terrarium-tf/cli/actions/workflows/test.yml/badge.svg)](https://github.com/terrarium-tf/cli/actions/workflows/test.yml)
+![GitHub relea se (latest by date)](https://img.shields.io/github/v/release/terrarium-tf/cli)
 
 **Builds Terraform Commands, easing those steps:**
 
