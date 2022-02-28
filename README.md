@@ -4,6 +4,12 @@
 
 [![Coverage Status](https://coveralls.io/repos/github/terrarium-tf/cli/badge.svg?branch=main)](https://coveralls.io/github/terrarium-tf/cli?branch=main)
 
+**Builds Terraform Commands, easing those steps:**
+
+* collects defined var-files
+* switches to the given workspace (can create new one)
+* runs the given terraform command with the multiple -var-files options in correct order.
+
 ## Setup
 
 download the binary matching your OS from [here](https://github.com/terrarium-tf/cli/releases)
@@ -58,6 +64,7 @@ Flags:
 
 Use "terrarium [command] --help" for more information about a command.
 ```
+
 
 ## Use within Github-Actions
 
