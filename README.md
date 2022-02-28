@@ -21,36 +21,40 @@ download the binary matching your OS from [here](https://github.com/terrarium-tf
         | - stage.tfvars.json # variables for the stage workspace (environment)
         |
         | - main.tf your stack entrypoint
-
+```
 
 ## Command
 
 ```
 $ ./terrarium
-A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
+Builds Terraform Commands, easing those steps:
+* collects defined var-files
+* switches to the given workspace (can create new one)
+* runs the given terraform command with the multiple -var-files options in correct order.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.
+You can override the default terraform binary with "-t"
+Add "-v" for more verbose logging.
 
 Usage:
-terrarium [command]
+  terrarium [command]
+
+Examples:
+terrarium [command] workspace path/to/stack -v -t echo
 
 Available Commands:
-apply       A brief description of your command
-completion  Generate the autocompletion script for the specified shell
-destroy     A brief description of your command
-help        Help about any command
-import      A brief description of your command
-init        A brief description of your command
-plan        A brief description of your command
-remove      A brief description of your command
+  apply       Apply a given Terraform Stack
+  completion  Generate the autocompletion script for the specified shell
+  destroy     Destroy a given Terraform stack
+  help        Help about any command
+  import      Import a remote resource into a local terraform resource
+  init        initializes a stack with optional remote state
+  plan        Creates a diff between remote and local state and prints the upcoming changes
+  remove      Removes a remote resource from the terraform state
 
 Flags:
--h, --help               help for terrarium
--t, --terraform string   terraform binary found in your path (default "/usr/local/bin/terraform")
--v, --verbose            display extended informations
+  -h, --help               help for terrarium
+  -t, --terraform string   terraform binary found in your path (default "/usr/local/bin/terraform")
+  -v, --verbose            display extended informations
 
 Use "terrarium [command] --help" for more information about a command.
 ```
@@ -80,7 +84,7 @@ jobs:
 
 ## Development
 
-checkout the source and install python dependencies with pip
+checkout the source and install golang dependencies with pip
 
 ```shell script
 $ go get
@@ -93,7 +97,7 @@ $ go run main.go
 build the binary
 
 ```shell script
-$ goreleaser build --snapshot
-$ cp ./dist/cli_xxx/cli /usr/local/bin/terrarium
+$ goreleaser build --snapshot --rm-dist
+$ cp ./dist/terrarium_xxx/terrarium /usr/local/bin/terrarium
 $ chmod a+x /usr/local/bin/terrarium
 ```

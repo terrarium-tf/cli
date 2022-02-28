@@ -29,19 +29,12 @@ import (
 
 func NewPlanCommand(root *cobra.Command) {
 	var planCmd = &cobra.Command{
-		Use:   "plan workspace stack",
-		Short: "A brief description of your command",
-		Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-		Args: lib.ArgsValidator,
+		Use:   "plan workspace path/to/stack",
+		Short: "Creates a diff between remote and local state and prints the upcoming changes",
+		Args:  lib.ArgsValidator,
 
 		Run: func(cmd *cobra.Command, args []string) {
-			tf, ctx := lib.Executor(*cmd, args[0], args[1])
-			files, _ := lib.Vars(*cmd, args[0], args[1])
+			tf, ctx, files, _ := lib.Executor(*cmd, args[0], args[1])
 
 			//plan
 			_, _ = tf.Plan(ctx, buildPlanOptions(files, args, "")...)

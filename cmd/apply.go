@@ -33,19 +33,14 @@ import (
 
 func NewApplyCommand(root *cobra.Command) {
 	var applyCmd = &cobra.Command{
-		Use:   "apply workspace stack",
-		Short: "A brief description of your command",
-		Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-		Args: lib.ArgsValidator,
+		Use:   "apply workspace path/to/stack",
+		Short: "Apply a given Terraform Stack",
+		Long:  `Creates a plan file (which might be uploaded to CI-Artifacts for auditing) and applies this exact plan file.`,
+		Args:  lib.ArgsValidator,
 
 		Run: func(cmd *cobra.Command, args []string) {
-			tf, ctx := lib.Executor(*cmd, args[0], args[1])
-			files, _ := lib.Vars(*cmd, args[0], args[1])
+			tf, ctx, files, _ := lib.Executor(*cmd, args[0], args[1])
+
 			planFile := fmt.Sprintf("%s-%s.tfplan", time.Now().Format(time.RFC3339), args[0])
 
 			//plan

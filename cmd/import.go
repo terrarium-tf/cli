@@ -32,18 +32,12 @@ import (
 
 func NewImportCommand(root *cobra.Command) {
 	var importCmd = &cobra.Command{
-		Use:   "import workspace stack tf_resource_id remote_resource",
-		Short: "A brief description of your command",
-		Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-		Args: importArgsValidator,
+		Use:     "import workspace path/to/stack tf_resource_id remote_resource",
+		Short:   "Import a remote resource into a local terraform resource",
+		Example: "import prod path/to/stack aws_s3_bucket.example some_aws_bucket_name",
+		Args:    importArgsValidator,
 		Run: func(cmd *cobra.Command, args []string) {
-			tf, ctx := lib.Executor(*cmd, args[0], args[1])
-			files, _ := lib.Vars(*cmd, args[0], args[1])
+			tf, ctx, files, _ := lib.Executor(*cmd, args[0], args[1])
 
 			_ = tf.Import(ctx, args[2], args[3], buildImportOptions(files, args)...)
 		},

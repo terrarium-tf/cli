@@ -30,18 +30,12 @@ import (
 
 func NewRemoveCommand(root *cobra.Command) {
 	var removeCmd = &cobra.Command{
-		Use:   "remove workspace stack tf_resource_id",
-		Short: "A brief description of your command",
-		Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-		Args: removeArgsValidator,
+		Use:     "remove workspace path/to/stack tf_resource_id",
+		Short:   "Removes a remote resource from the terraform state",
+		Example: "remove prod path/to/stack aws_s3_bucket.example",
+		Args:    removeArgsValidator,
 		Run: func(cmd *cobra.Command, args []string) {
-			tf, ctx := lib.Executor(*cmd, args[0], args[1])
-			_, _ = lib.Vars(*cmd, args[0], args[1])
+			tf, ctx, _, _ := lib.Executor(*cmd, args[0], args[1])
 
 			_ = tf.StateRm(ctx, args[2])
 		},

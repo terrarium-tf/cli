@@ -41,13 +41,16 @@ func NewRootCommand() *cobra.Command {
 
 	var rootCmd = &cobra.Command{
 		Use:   "terrarium [command] workspace path/to/stack",
-		Short: "A brief description of your application",
-		Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
+		Short: "run terraform with autoinjected var files",
+		Long: `Builds Terraform Commands, easing those steps:
+* collects defined var-files
+* switches to the given workspace (can create new one)
+* runs the given terraform command with the multiple -var-files options in correct order.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+You can override the default terraform binary with "-t"
+Add "-v" for more verbose logging.
+`,
+		Example: "terrarium [command] workspace path/to/stack -v -t echo",
 	}
 
 	rootCmd.PersistentFlags().StringVarP(&binary, "terraform", "t", lib.Binary(), "terraform binary found in your path")
