@@ -22,7 +22,7 @@ jobs:
         with:
           version: v1.29
 
-  coverage:
+  test:
     runs-on: ubuntu-latest
     steps:
       - name: Install Go
@@ -43,7 +43,7 @@ jobs:
       - name: Get Dependencies
         run: go get
 
-      - name: Calc coverage
+      - name: Test
         run: |
           go test ./... -v -covermode=count -coverprofile=coverage.out
       - name: Convert coverage.out to coverage.lcov

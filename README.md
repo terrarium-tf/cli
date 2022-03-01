@@ -72,6 +72,30 @@ Flags:
 Use "terrarium [command] --help" for more information about a command.
 ```
 
+## Usage & Under the Hood
+
+> assuming the above stack setup,
+
+`terraform init stage example/stack`
+
+will internally run:
+
+```
+terraform workspace select dev
+terraform version -json
+terraform version
+terraform init -force-copy -input=false -backend=true -get=true -upgrade=true -backend-config=region=eu-central-1 -backend-config=bucket=tf-state-terrarium-cli-eu-central-1-455201159890 -backend-config=key=stack.tfstate -backend-config=dynamodb_table=terraform-lock-terrarium-cli-eu-central-1-455201159890
+```
+
+`terrarium apply stage example/stack`
+
+will internally run:
+
+```
+terraform workspace select stage
+terraform plan -input=false -detailed-exitcode -lock-timeout=0s -out=2022-02-28T16:26:26Z-stage.tfplan -var-file=example/global.tfvars.json -var-file=example/stack/app.tfvars.json -var-file=example/stack/stage.tfvars.json -lock=true -parallelism=10 -refresh=true -var environment=stage
+terraform apply -auto-approve -input=false -lock=true -parallelism=10 -refresh=true 2022-02-28T16:26:26Z-stage.tfplan
+```
 
 ## Use within Github-Actions
 
