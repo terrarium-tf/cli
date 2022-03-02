@@ -39,7 +39,7 @@ func NewApplyCommand(root *cobra.Command) {
 		Args:  lib.ArgsValidator,
 
 		Run: func(cmd *cobra.Command, args []string) {
-			tf, ctx, files, _ := lib.Executor(*cmd, args[0], args[1])
+			tf, ctx, files, _ := lib.Executor(*cmd, args[0], args[1], true)
 
 			planFile := fmt.Sprintf("%s-%s.tfplan", time.Now().Format(time.RFC3339), args[0])
 

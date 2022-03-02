@@ -37,7 +37,7 @@ func NewImportCommand(root *cobra.Command) {
 		Example: "import prod path/to/stack aws_s3_bucket.example some_aws_bucket_name",
 		Args:    importArgsValidator,
 		Run: func(cmd *cobra.Command, args []string) {
-			tf, ctx, files, _ := lib.Executor(*cmd, args[0], args[1])
+			tf, ctx, files, _ := lib.Executor(*cmd, args[0], args[1], true)
 
 			_ = tf.Import(ctx, args[2], args[3], buildImportOptions(files, args)...)
 		},

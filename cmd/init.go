@@ -54,7 +54,7 @@ These variables can be defined by your *.tfvars.json or through command options
 		Example: "init workspace path/to/stack --state-bucket=my_own_bucket_id --state-dynamo=my_dynamo_table --state-region=us-east-1 --state-account=4711 --state-name=my_state_entry_name",
 		Args:    lib.ArgsValidator,
 		Run: func(cmd *cobra.Command, args []string) {
-			tf, ctx, _, mergedVars := lib.Executor(*cmd, args[0], args[1])
+			tf, ctx, _, mergedVars := lib.Executor(*cmd, args[0], args[1], false)
 
 			//init
 			_ = tf.Init(ctx, buildInitOptions(*cmd, mergedVars, args)...)

@@ -57,15 +57,6 @@ func TestInitCommandWithoutRemoteState(t *testing.T) {
 	out := runCommand(t, args)
 	t.Log(out)
 
-	if !strings.Contains(out, "workspace new dev") {
-		t.Errorf("missing create workspace")
-	}
-	if !strings.Contains(out, "workspace select dev") {
-		t.Errorf("missing switch workspace")
-	}
-	if !strings.Contains(out, "version -json") {
-		t.Errorf("missing switch workspace")
-	}
 	if !strings.Contains(out, "init -force-copy -input=false -backend=false -get=true -upgrade=true") {
 		t.Errorf("invalid init command")
 	}
@@ -76,15 +67,6 @@ func TestInitCommandWithRemoteStateButNoLocking(t *testing.T) {
 	out := runCommand(t, args)
 	t.Log(out)
 
-	if !strings.Contains(out, "workspace new dev") {
-		t.Errorf("missing create workspace")
-	}
-	if !strings.Contains(out, "workspace select dev") {
-		t.Errorf("missing switch workspace")
-	}
-	if !strings.Contains(out, "version -json") {
-		t.Errorf("missing switch workspace")
-	}
 	if !strings.Contains(out, "init -force-copy -input=false -backend=true -get=true -upgrade=true -backend-config=region=eu-central-1 -backend-config=bucket=tf-state-terrarium-cli-eu-central-1-455201159890 -backend-config=key=stack.tfstate") {
 		t.Errorf("invalid init command")
 	}
@@ -95,15 +77,6 @@ func TestInitCommand(t *testing.T) {
 	out := runCommand(t, args)
 	t.Log(out)
 
-	if !strings.Contains(out, "workspace new dev") {
-		t.Errorf("missing create workspace")
-	}
-	if !strings.Contains(out, "workspace select dev") {
-		t.Errorf("missing switch workspace")
-	}
-	if !strings.Contains(out, "version -json") {
-		t.Errorf("missing switch workspace")
-	}
 	if !strings.Contains(out, "init -force-copy -input=false -backend=true -get=true -upgrade=true -backend-config=region=eu-central-1 -backend-config=bucket=tf-state-terrarium-cli-eu-central-1-455201159890 -backend-config=key=stack.tfstate -backend-config=dynamodb_table=terraform-lock-terrarium-cli-eu-central-1-455201159890") {
 		t.Errorf("invalid init command")
 	}

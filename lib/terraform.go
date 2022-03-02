@@ -25,7 +25,7 @@ func Binary() string {
 	return path
 }
 
-func Executor(cmd cobra.Command, workspace string, path string) (*tfexec.Terraform, context.Context, []string, map[string]interface{}) {
+func Executor(cmd cobra.Command, workspace string, path string, switchWorkspace bool) (*tfexec.Terraform, context.Context, []string, map[string]interface{}) {
 	binary, err := cmd.Parent().PersistentFlags().GetString("terraform")
 
 	if err != nil {
@@ -43,7 +43,9 @@ func Executor(cmd cobra.Command, workspace string, path string) (*tfexec.Terrafo
 	tf.SetStderr(cmd.ErrOrStderr())
 
 	ctx := context.Background()
-	Workspace(tf, ctx, cmd, workspace)
+	if switchWorkspace {
+		Workspace(tf, ctx, cmd, workspace)
+	}
 
 	files, vars := Vars(cmd, workspace, path)
 

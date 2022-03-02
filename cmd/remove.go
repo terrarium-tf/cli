@@ -35,7 +35,7 @@ func NewRemoveCommand(root *cobra.Command) {
 		Example: "remove prod path/to/stack aws_s3_bucket.example",
 		Args:    removeArgsValidator,
 		Run: func(cmd *cobra.Command, args []string) {
-			tf, ctx, _, _ := lib.Executor(*cmd, args[0], args[1])
+			tf, ctx, _, _ := lib.Executor(*cmd, args[0], args[1], true)
 
 			_ = tf.StateRm(ctx, args[2])
 		},

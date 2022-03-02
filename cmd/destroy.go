@@ -36,7 +36,7 @@ func NewDestroyCommand(root *cobra.Command) {
 		Args:  lib.ArgsValidator,
 
 		Run: func(cmd *cobra.Command, args []string) {
-			tf, ctx, files, _ := lib.Executor(*cmd, args[0], args[1])
+			tf, ctx, files, _ := lib.Executor(*cmd, args[0], args[1], true)
 
 			_ = tf.Destroy(ctx, buildDestroyOptions(files, args)...)
 		},
