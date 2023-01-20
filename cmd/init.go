@@ -175,13 +175,6 @@ func configureAwsBackend(cmd cobra.Command, mergedVars map[string]any, args []st
 }
 
 func configureGcsBackend(cmd cobra.Command, mergedVars map[string]any, args []string, opts []tfexec.InitOption) []tfexec.InitOption {
-	/*
-		backend "gcs" {
-			bucket      = "jhps_analytics_tf_state_integ"
-			prefix      = "bigquery"
-			credentials = "C:/Users/DEJHNV05/AppData/Roaming/gcloud/application_default_credentials.json"
-		}
-	*/
 	return append(opts,
 		configureCredentials(cmd, mergedVars),
 		configureGcpBucket(cmd, mergedVars),
