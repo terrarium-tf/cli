@@ -187,3 +187,19 @@ func TestRemoveCommandWithVerbose(t *testing.T) {
 		t.Errorf("invalid remove command")
 	}
 }
+
+func TestUntaintCommand(t *testing.T) {
+	args := []string{"untaint", "dev", "../example/stack", "-t", "echo", "aws_s3_bucket.test"}
+	out := runCommand(t, args)
+	t.Log(out)
+
+	if !strings.Contains(out, "workspace new dev") {
+		t.Errorf("missing create workspace")
+	}
+	if !strings.Contains(out, "workspace select dev") {
+		t.Errorf("missing switch workspace")
+	}
+	if !strings.Contains(out, "untaint aws_s3_bucket.test") {
+		t.Errorf("invalid untaint command")
+	}
+}

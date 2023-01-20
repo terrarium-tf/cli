@@ -23,54 +23,31 @@ THE SOFTWARE.
 package cmd
 
 import (
-	"fmt"
-	"github.com/hashicorp/terraform-exec/tfexec"
+	"errors"
 	"github.com/spf13/cobra"
-	"os"
-	"path/filepath"
-	"time"
-
 	"github.com/terrarium-tf/cli/lib"
 )
 
-func NewApplyCommand(root *cobra.Command) {
-	var applyCmd = &cobra.Command{
-		Use:   "apply workspace path/to/stack",
-		Short: "Apply a given Terraform Stack",
-		Long:  `Creates a plan file (which might be uploaded to CI-Artifacts for auditing) and applies this exact plan file.`,
-		Args:  lib.ArgsValidator,
+func NewUntaintCommand(root *cobra.Command) {
+	var untaintCmd = &cobra.Command{
+		Use:   "untaint workspace path/to/stack tf_resource",
+		Short: "Untaints a given Terraform Resource from a State",
+		Args:  untaintArgsValidator,
 
 		Run: func(cmd *cobra.Command, args []string) {
-			tf, ctx, files, _ := lib.Executor(*cmd, args[0], args[1], true)
+			tf, ctx, _, _ := lib.Executor(*cmd, args[0], args[1], true)
 
-			planFile := fmt.Sprintf("%s-%s.tfplan", time.Now().Format(time.RFC3339), args[0])
-			planFile, _ = filepath.Abs(planFile)
-
-			//plan
-			_, _ = tf.Plan(ctx, buildPlanOptions(files, args, planFile)...)
-
-			//apply
-			_ = tf.Apply(ctx, tfexec.DirOrPlan(planFile))
-
-			if os.Getenv("TF_IN_AUTOMATION") == "" {
-				_ = os.Remove(planFile)
-			}
+			_ = tf.Untaint(ctx, args[2])
 		},
 	}
 
-	root.AddCommand(applyCmd)
+	root.AddCommand(untaintCmd)
 }
 
-func buildPlanOptions(files []string, args []string, planFile string) []tfexec.PlanOption {
-	var planops []tfexec.PlanOption
-
-	for _, f := range files {
-		planops = append(planops, tfexec.VarFile(f))
+func untaintArgsValidator(cmd *cobra.Command, args []string) error {
+	if len(args) < 3 {
+		return errors.New("requires a workspace,a stack path and a tf resource")
 	}
 
-	if planFile != "" {
-		return append(planops, tfexec.Var(fmt.Sprintf("environment=%s", args[0])), tfexec.Out(planFile))
-	}
-
-	return append(planops, tfexec.Var(fmt.Sprintf("environment=%s", args[0])))
+	return lib.ArgsValidator(cmd, args)
 }

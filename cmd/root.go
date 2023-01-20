@@ -66,4 +66,5 @@ func AddChildCommands(rootCmd *cobra.Command) {
 	NewInitCommand(rootCmd)
 	NewPlanCommand(rootCmd)
 	NewRemoveCommand(rootCmd)
+	NewUntaintCommand(rootCmd)
 }

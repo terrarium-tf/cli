@@ -43,6 +43,7 @@ func Executor(cmd cobra.Command, workspace string, path string, switchWorkspace 
 	tf.SetStderr(cmd.ErrOrStderr())
 
 	ctx := context.Background()
+
 	if switchWorkspace {
 		Workspace(tf, ctx, cmd, workspace)
 	}
