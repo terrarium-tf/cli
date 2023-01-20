@@ -23,13 +23,19 @@ func ArgsValidator(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func Vars(cmd cobra.Command, env string, stackPath string) ([]string, map[string]interface{}) {
+func Vars(cmd cobra.Command, env string, stackPath string) ([]string, map[string]any) {
 	// collect global vars
-	vars := make(map[string]interface{})
+	vars := make(map[string]any)
 	var files []string
 
+	// collect local vars
+	f := readVarsFile(cmd, "local.tfvars.json", stackPath, &vars)
+	if f != "" {
+		files = append(files, f)
+	}
+
 	// collect global vars
-	f := readVarsFile(cmd, "global.tfvars.json", stackPath, &vars)
+	f = readVarsFile(cmd, "global.tfvars.json", stackPath, &vars)
 	if f != "" {
 		files = append(files, f)
 	}
@@ -77,7 +83,7 @@ func Vars(cmd cobra.Command, env string, stackPath string) ([]string, map[string
 	return files, vars
 }
 
-func VarToString(v interface{}) string {
+func VarToString(v any) string {
 	strVal := ""
 	switch t := v.(type) {
 	case int:
@@ -97,7 +103,7 @@ func VarToString(v interface{}) string {
 	return strVal
 }
 
-func readVarsFile(cmd cobra.Command, name string, path string, vars *map[string]interface{}) string {
+func readVarsFile(cmd cobra.Command, name string, path string, vars *map[string]any) string {
 	file, err := gofindup.FindupFrom(name, path)
 	if err != nil {
 		log.Fatal(err)
@@ -126,7 +132,7 @@ func readVarsFile(cmd cobra.Command, name string, path string, vars *map[string]
 	return ""
 }
 
-func GetVar(name string, cmd cobra.Command, mergedVars map[string]interface{}, required bool) string {
+func GetVar(name string, cmd cobra.Command, mergedVars map[string]any, required bool) string {
 	var _var string
 	flag := cmd.Flags().Lookup(fmt.Sprintf("state-%s", name))
 

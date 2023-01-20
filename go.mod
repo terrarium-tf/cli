@@ -1,6 +1,6 @@
 module github.com/terrarium-tf/cli
 
-go 1.17
+go 1.18
 
 require (
 	github.com/hashicorp/terraform-exec v0.16.0

@@ -11,6 +11,8 @@
 * collects defined var-files
 * switches to the given workspace (can create new one)
 * runs the given terraform command with the multiple -var-files options in correct order.
+* automatically detects `s3` or `gcs` backend
+* local file for machine only parameters
 
 using those awesome tools:
 
@@ -24,6 +26,7 @@ download the binary matching your OS from [here](https://github.com/terrarium-tf
 ## Anatomy of Stacks and Configs
 
 ```
+ |- local.tfvars.json # private variables available to all stacks, e.g. local paths (relative to cwd)
  |- global.tfvars.json # variables available to all stacks (relative to cwd)
  |- stage.tfvars.json # variables available to all stacks using the "stage" workspace (relative to cwd)
  |

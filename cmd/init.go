@@ -23,12 +23,16 @@ THE SOFTWARE.
 package cmd
 
 import (
+	"bufio"
 	"fmt"
 	"github.com/hashicorp/terraform-exec/tfexec"
 	"github.com/terrarium-tf/cli/lib"
+	"io/fs"
 	"log"
 	"os"
 	"path"
+	"path/filepath"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -74,23 +78,20 @@ These variables can be defined by your *.tfvars.json or through command options
 	root.AddCommand(initCmd)
 }
 
-func buildInitOptions(cmd cobra.Command, mergedVars map[string]interface{}, args []string) []tfexec.InitOption {
+func buildInitOptions(cmd cobra.Command, mergedVars map[string]any, args []string) []tfexec.InitOption {
 	var opts []tfexec.InitOption
 
 	// if we want to init with an s3/dynamo remote state
 	rs := cmd.Flags().Lookup("remote-state")
 	if rs.Value.String() == "true" {
-		opts = append(opts,
-			configureRegion(cmd, mergedVars),
-			configureBucket(cmd, mergedVars),
-			configureStateKey(cmd, mergedVars, args),
-		)
+		// find the backend provider by scanning files for a backend config statement
+		switch detectBackendProvider(args[1]) {
+		case "gcs":
+			opts = configureGcsBackend(cmd, mergedVars, args, opts)
+			break
+		default:
+			opts = configureAwsBackend(cmd, mergedVars, args, opts)
 
-		sl := cmd.Flags().Lookup("state-lock")
-		if sl.Value.String() == "true" {
-			opts = append(opts,
-				configureStateLock(cmd, mergedVars),
-			)
 		}
 	} else {
 		opts = append(opts, tfexec.Backend(false))
@@ -99,7 +100,96 @@ func buildInitOptions(cmd cobra.Command, mergedVars map[string]interface{}, args
 	return append(opts, tfexec.Upgrade(true))
 }
 
-func configureRegion(cmd cobra.Command, mergedVars map[string]interface{}) tfexec.InitOption {
+func detectBackendProvider(stackPath string) string {
+	tfFiles := findFiles(stackPath, ".tf")
+
+	for _, f := range tfFiles {
+		provider, _ := scanFile(f)
+		if provider != "" {
+			return provider
+		}
+	}
+	return "s3"
+}
+
+func scanFile(file string) (string, error) {
+	f, err := os.Open(file)
+	if err != nil {
+		return "", err
+	}
+	defer f.Close()
+
+	// Splits on newlines by default.
+	scanner := bufio.NewScanner(f)
+
+	line := 1
+	// https://golang.org/pkg/bufio/#Scanner.Scan
+	for scanner.Scan() {
+		if strings.Contains(scanner.Text(), "backend \"s3\"") {
+			return "s3", nil
+		}
+		if strings.Contains(scanner.Text(), "backend \"gcs\"") {
+			return "gcs", nil
+		}
+
+		line++
+	}
+
+	if err = scanner.Err(); err != nil {
+		// Handle the error
+		return "", err
+	}
+
+	return "", nil
+}
+
+func findFiles(root, ext string) []string {
+	var a []string
+	_ = filepath.WalkDir(root, func(s string, d fs.DirEntry, e error) error {
+		if e != nil {
+			return e
+		}
+		if filepath.Ext(d.Name()) == ext {
+			a = append(a, s)
+		}
+		return nil
+	})
+
+	return a
+}
+
+func configureAwsBackend(cmd cobra.Command, mergedVars map[string]any, args []string, opts []tfexec.InitOption) []tfexec.InitOption {
+	opts = append(opts,
+		configureRegion(cmd, mergedVars),
+		configureAwsBucket(cmd, mergedVars),
+		configureStateKey(cmd, mergedVars, args),
+	)
+
+	sl := cmd.Flags().Lookup("state-lock")
+	if sl.Value.String() == "true" {
+		opts = append(opts,
+			configureStateLock(cmd, mergedVars),
+		)
+	}
+	return opts
+}
+
+func configureGcsBackend(cmd cobra.Command, mergedVars map[string]any, args []string, opts []tfexec.InitOption) []tfexec.InitOption {
+	/*
+		backend "gcs" {
+			bucket      = "jhps_analytics_tf_state_integ"
+			prefix      = "bigquery"
+			credentials = "C:/Users/DEJHNV05/AppData/Roaming/gcloud/application_default_credentials.json"
+		}
+	*/
+	return append(opts,
+		configureCredentials(cmd, mergedVars),
+		configureGcpBucket(cmd, mergedVars),
+		configurePrefix(cmd, mergedVars, args),
+	)
+}
+
+func configureRegion(cmd cobra.Command, mergedVars map[string]any) tfexec.InitOption {
 	region := lib.GetVar("region", cmd, mergedVars, false)
 
 	if region == "" {
@@ -118,7 +208,26 @@ func configureRegion(cmd cobra.Command, mergedVars map[string]interface{}) tfexe
 	return tfexec.BackendConfig(fmt.Sprintf("region=%s", region))
 }
 
-func configureBucket(cmd cobra.Command, mergedVars map[string]interface{}) tfexec.InitOption {
+func configureCredentials(cmd cobra.Command, mergedVars map[string]any) tfexec.InitOption {
+	file := lib.GetVar("credentials", cmd, mergedVars, false)
+
+	if file == "" {
+		if os.Getenv("GOOGLE_BACKEND_CREDENTIALS") != "" {
+			file = os.Getenv("GOOGLE_BACKEND_CREDENTIALS")
+		}
+		if file == "" && os.Getenv("GOOGLE_CREDENTIALS") != "" {
+			file = os.Getenv("GOOGLE_CREDENTIALS")
+		}
+	}
+
+	if file == "" {
+		log.Fatalf(lib.ErrorColorLine, "unable to configure remote state, 'credentials' was not found in var files and not provided with '-state-credentials' nor was GOOGLE_BACKEND_CREDENTIALS or GOOGLE_CREDENTIALS found in global environment")
+	}
+
+	return tfexec.BackendConfig(fmt.Sprintf("credentials=%s", file))
+}
+
+func configureAwsBucket(cmd cobra.Command, mergedVars map[string]any) tfexec.InitOption {
 	bucket := lib.GetVar("bucket", cmd, mergedVars, false)
 	if bucket == "" {
 		// no bucket defined, so generate a unique name
@@ -131,7 +240,18 @@ func configureBucket(cmd cobra.Command, mergedVars map[string]interface{}) tfexe
 	return tfexec.BackendConfig(fmt.Sprintf("bucket=%s", bucket))
 }
 
-func configureStateKey(cmd cobra.Command, mergedVars map[string]interface{}, args []string) tfexec.InitOption {
+func configureGcpBucket(cmd cobra.Command, mergedVars map[string]any) tfexec.InitOption {
+	bucket := lib.GetVar("bucket", cmd, mergedVars, false)
+	if bucket == "" {
+		// no bucket defined, so generate a unique name
+		bucket = fmt.Sprintf("tf-state-%s",
+			lib.GetVar("project", cmd, mergedVars, false),
+		)
+	}
+	return tfexec.BackendConfig(fmt.Sprintf("bucket=%s", bucket))
+}
+
+func configureStateKey(cmd cobra.Command, mergedVars map[string]any, args []string) tfexec.InitOption {
 	key := lib.GetVar("name", cmd, mergedVars, false)
 	if key == "" {
 		// no bucket defined, so generate a unique name
@@ -140,7 +260,16 @@ func configureStateKey(cmd cobra.Command, mergedVars map[string]interface{}, arg
 	return tfexec.BackendConfig(fmt.Sprintf("key=%s.tfstate", key))
 }
 
-func configureStateLock(cmd cobra.Command, mergedVars map[string]interface{}) tfexec.InitOption {
+func configurePrefix(cmd cobra.Command, mergedVars map[string]any, args []string) tfexec.InitOption {
+	key := lib.GetVar("prefix", cmd, mergedVars, false)
+	if key == "" {
+		// no prefix defined, so generate a unique name
+		key = path.Base(args[1])
+	}
+	return tfexec.BackendConfig(fmt.Sprintf("prefix=%s", key))
+}
+
+func configureStateLock(cmd cobra.Command, mergedVars map[string]any) tfexec.InitOption {
 	table := lib.GetVar("dynamo", cmd, mergedVars, false)
 	if table == "" {
 		// no bucket defined, so generate a unique name
