@@ -17,4 +17,4 @@ require (
 	golang.org/x/text v0.6.0 // indirect
 )
 
-replace github.com/hashicorp/terraform-exec v0.16.0 => github.com/digitalkaoz/terraform-exec v0.16.1-0.20220222225145-2509737b3247
+replace github.com/hashicorp/terraform-exec v0.17.3 => github.com/digitalkaoz/terraform-exec v0.17.4-0.20230120122230-3d5d15e21122
