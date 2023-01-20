@@ -88,7 +88,6 @@ func buildInitOptions(cmd cobra.Command, mergedVars map[string]any, args []strin
 		switch detectBackendProvider(args[1]) {
 		case "gcs":
 			opts = configureGcsBackend(cmd, mergedVars, args, opts)
-			break
 		default:
 			opts = configureAwsBackend(cmd, mergedVars, args, opts)
 
