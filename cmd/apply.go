@@ -28,6 +28,7 @@ import (
 	"github.com/spf13/cobra"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/terrarium-tf/cli/lib"
@@ -43,7 +44,7 @@ func NewApplyCommand(root *cobra.Command) {
 		Run: func(cmd *cobra.Command, args []string) {
 			tf, ctx, files, _ := lib.Executor(*cmd, args[0], args[1], true)
 
-			planFile := fmt.Sprintf("%s-%s.tfplan", time.Now().Format(time.RFC3339), args[0])
+			planFile := fmt.Sprintf("%s-%s.tfplan", strings.Replace(time.Now().Format(time.RFC3339), ":", "-", -1), args[0])
 			planFile, _ = filepath.Abs(planFile)
 
 			//plan
