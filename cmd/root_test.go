@@ -96,7 +96,7 @@ func TestInitCommandGcp(t *testing.T) {
 
 func TestApplyCommand(t *testing.T) {
 	args := []string{"apply", "dev", "../example/stack", "-t", "echo"}
-	now := time.Now().Format(time.RFC3339)
+	now := strings.Replace(time.Now().Format(time.RFC3339), ":", "-", -1)
 	out := runCommand(t, args)
 	t.Log(out)
 
