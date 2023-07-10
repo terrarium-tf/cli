@@ -26,6 +26,7 @@ import (
 	"errors"
 	"github.com/spf13/cobra"
 	"github.com/terrarium-tf/cli/lib"
+	"os"
 )
 
 func NewRemoveCommand(root *cobra.Command) {
@@ -37,7 +38,10 @@ func NewRemoveCommand(root *cobra.Command) {
 		Run: func(cmd *cobra.Command, args []string) {
 			tf, ctx, _, _ := lib.Executor(*cmd, args[0], args[1], true)
 
-			_ = tf.StateRm(ctx, args[2])
+			err := tf.StateRm(ctx, args[2])
+			if err != nil {
+				os.Exit(1)
+			}
 		},
 	}
 

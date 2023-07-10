@@ -48,10 +48,16 @@ func NewApplyCommand(root *cobra.Command) {
 			planFile, _ = filepath.Abs(planFile)
 
 			//plan
-			_, _ = tf.Plan(ctx, buildPlanOptions(files, args, planFile)...)
+			_, err := tf.Plan(ctx, buildPlanOptions(files, args, planFile)...)
 
+			if err != nil {
+				os.Exit(1)
+			}
 			//apply
-			_ = tf.Apply(ctx, tfexec.DirOrPlan(planFile))
+			err = tf.Apply(ctx, tfexec.DirOrPlan(planFile))
+			if err != nil {
+				os.Exit(1)
+			}
 
 			if os.Getenv("TF_IN_AUTOMATION") == "" {
 				_ = os.Remove(planFile)

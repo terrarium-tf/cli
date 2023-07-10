@@ -61,7 +61,10 @@ These variables can be defined by your *.tfvars.json or through command options
 			tf, ctx, _, mergedVars := lib.Executor(*cmd, args[0], args[1], false)
 
 			//init
-			_ = tf.Init(ctx, buildInitOptions(*cmd, mergedVars, args)...)
+			err := tf.Init(ctx, buildInitOptions(*cmd, mergedVars, args)...)
+			if err != nil {
+				os.Exit(1)
+			}
 		},
 	}
 

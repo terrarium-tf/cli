@@ -25,6 +25,7 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 	"github.com/terrarium-tf/cli/lib"
+	"os"
 )
 
 func NewPlanCommand(root *cobra.Command) {
@@ -37,7 +38,10 @@ func NewPlanCommand(root *cobra.Command) {
 			tf, ctx, files, _ := lib.Executor(*cmd, args[0], args[1], true)
 
 			//plan
-			_, _ = tf.Plan(ctx, buildPlanOptions(files, args, "")...)
+			_, err := tf.Plan(ctx, buildPlanOptions(files, args, "")...)
+			if err != nil {
+				os.Exit(1)
+			}
 		},
 	}
 
