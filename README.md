@@ -99,7 +99,9 @@ terraform plan -input=false -detailed-exitcode -lock-timeout=0s -out=2022-02-28T
 terraform apply -auto-approve -input=false -lock=true -parallelism=10 -refresh=true 2022-02-28T16:26:26Z-stage.tfplan
 ```
 
-## Use within Github-Actions
+## Usage in CI Runners
+
+### Github-Actions
 
 ```yaml
 jobs:
@@ -122,6 +124,44 @@ jobs:
 
 ```
 
+### Bitbucket Pipeline
+
+```yaml
+image: hashicorp/terraform:1.5
+
+definitions:
+  caches:
+    # Cache zip cli
+    bins: /usr/bin
+
+  steps:
+    - step: &prepare
+        name: install terrarium
+        script:
+          - wget https://github.com/terrarium-tf/cli/releases/download/v1.2.0/terrarium_1.2.0_linux_amd64.tar.gz
+          - tar -xvzf terrarium_1.2.0_linux_amd64.tar.gz
+          - mv ./terrarium /usr/bin/
+        caches:
+          - bins
+
+    - step: &stack
+        name: Apply Stack
+        caches:
+          - bins
+        script:
+          - export TF_IN_AUTOMATION=1
+          - terrarium init $STAGE stacks/stack
+          - terrarium apply $STAGE stacks/stack
+        artifacts:
+          - stacks/stack/*.tfplan
+
+pipelines:
+  branches:
+    main:
+      - step: *prepare
+      - parallel:
+          - step: *stack
+```
 ## Cloud Providers
 
 we support storing remote state for all 3 major Cloud Providers (AWS, GCP, Azure), if you dont want (or cant) use a remote state simply provide the
