@@ -123,6 +123,71 @@ jobs:
 
 ```
 
+## Cloud Providers
+
+we support storing remote state for all 3 major Cloud Providers (AWS, GCP, Azure), if you dont want (or cant) use a remote state simply provide the
+`--remote-state=false` option during the init command. 
+
+> you can still configure your remote state by hand, but remember to deactive the automatic configuration (as above)
+
+for providing sensitive variables use a local not checked in file `local.tfvars.json`
+
+global variables should be stored in `global.tfvars.json`
+
+stack specific variables should be stored in `app.tfvars.json`
+
+### AWS
+
+for [AWS](https://developer.hashicorp.com/terraform/language/settings/backends/s3) we configure the s3 bucket and the (optional) dynamo state locking from these variables:
+
+* s3 bucket name : `"tf-state-{project}-{region}-{account}`
+* dynamo table : `terraform-lock-{project}-{region}-{account}`
+* s3 file : `{name}.tfstate`
+* the AWS credentials should be provided by your shell environment
+
+### GCP
+
+for [GCP](https://developer.hashicorp.com/terraform/language/settings/backends/gcs) we configure the bucket from these variables:
+
+* bucket name : `"tf-state-{project}`
+* credentials: read from the `credentials` variable or from the environment variables `GOOGLE_BACKEND_CREDENTIALS` or `GOOGLE_CREDENTIALS`
+* prefix: read from the `prefix` variable
+
+### Azure
+
+for [Azure](https://developer.hashicorp.com/terraform/language/settings/backends/azurerm) we configure the bucket from these variables:
+
+* storage_account_name : read from the `account` variable
+* resource_group_name : read from the `name` variable
+* file (key) : `{name}.tfstate`
+* container_name (bucket): `tf-state-{project}-{account}`
+
+all optional variables from the documentation can be provided by their `ARM_*` environment variables (or through variables):
+
+```go
+{"environment", "ARM_ENVIRONMENT"},
+{"endpoint", "ARM_ENDPOINT"},
+{"metadata_host", "ARM_METADATA_HOSTNAME"},
+{"snapshot", "ARM_SNAPSHOT"},
+{"msi_endpoint", "ARM_MSI_ENDPOINT"},
+{"use_msi", "ARM_USE_MSI"},
+{"oidc_request_url", "ARM_OIDC_REQUEST_URL"},
+{"oidc_request_token", "ARM_OIDC_REQUEST_TOKEN"},
+{"oidc_token", "ARM_OIDC_TOKEN"},
+{"oidc_token_file_path", "ARM_OIDC_TOKEN_FILE_PATH"},
+{"use_oidc", "ARM_USE_OIDC"},
+{"sas_token", "ARM_SAS_TOKEN"},
+{"access_key", "ARM_ACCESS_KEY"},
+{"use_azuread_auth", "ARM_USE_AZUREAD"},
+{"client_id", "ARM_CLIENT_ID"},
+{"client_certificate_password", "ARM_CLIENT_CERTIFICATE_PASSWORD"},
+{"client_certificate_path", "ARM_CLIENT_CERTIFICATE_PATH"},
+{"client_secret", "ARM_CLIENT_SECRET"},
+{"subscription_id", "ARM_SUBSCRIPTION_ID"},
+{"tenant_id", "ARM_TENANT_ID"},
+```
+
+
 ## Development
 
 checkout the source and install golang dependencies with pip

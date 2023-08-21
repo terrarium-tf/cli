@@ -75,7 +75,7 @@ These variables can be defined by your *.tfvars.json or through command options
 	initCmd.Flags().String("state-bucket", "", "initialize with state bucket")
 	initCmd.Flags().String("state-dynamo", "", "initialize with state dynamo for locking")
 	initCmd.Flags().String("state-region", "", "initialize with state region")
-	initCmd.Flags().String("state-account", "", "initialize with state aws account")
+	initCmd.Flags().String("state-account", "", "initialize with state aws|azure account")
 	initCmd.Flags().String("state-name", "", "initialize with state name")
 
 	root.AddCommand(initCmd)
@@ -91,6 +91,8 @@ func buildInitOptions(cmd cobra.Command, mergedVars map[string]any, args []strin
 		switch detectBackendProvider(args[1]) {
 		case "gcs":
 			opts = configureGcsBackend(cmd, mergedVars, args, opts)
+		case "azure":
+			opts = configureAzureBackend(cmd, mergedVars, args, opts)
 		default:
 			opts = configureAwsBackend(cmd, mergedVars, args, opts)
 
@@ -132,6 +134,9 @@ func scanFile(file string) (string, error) {
 		}
 		if strings.Contains(scanner.Text(), "backend \"gcs\"") {
 			return "gcs", nil
+		}
+		if strings.Contains(scanner.Text(), "backend \"azurerm\"") {
+			return "azure", nil
 		}
 
 		line++
@@ -178,10 +183,21 @@ func configureAwsBackend(cmd cobra.Command, mergedVars map[string]any, args []st
 
 func configureGcsBackend(cmd cobra.Command, mergedVars map[string]any, args []string, opts []tfexec.InitOption) []tfexec.InitOption {
 	return append(opts,
-		configureCredentials(cmd, mergedVars),
+		configureGcpCredentials(cmd, mergedVars),
 		configureGcpBucket(cmd, mergedVars),
 		configurePrefix(cmd, mergedVars, args),
 	)
+}
+
+func configureAzureBackend(cmd cobra.Command, mergedVars map[string]any, args []string, opts []tfexec.InitOption) []tfexec.InitOption {
+	opts = append(opts,
+		configureAzureCredentials(cmd, mergedVars),
+		configureAzureGroupName(cmd, mergedVars),
+		configureStateKey(cmd, mergedVars, args),
+		configureAzureBucket(cmd, mergedVars),
+	)
+
+	return append(opts, configureAzureFromEnv(cmd, mergedVars)...)
 }
 
 func configureRegion(cmd cobra.Command, mergedVars map[string]any) tfexec.InitOption {
@@ -203,7 +219,66 @@ func configureRegion(cmd cobra.Command, mergedVars map[string]any) tfexec.InitOp
 	return tfexec.BackendConfig(fmt.Sprintf("region=%s", region))
 }
 
-func configureCredentials(cmd cobra.Command, mergedVars map[string]any) tfexec.InitOption {
+func configureAzureCredentials(cmd cobra.Command, mergedVars map[string]any) tfexec.InitOption {
+	account := lib.GetVar("account", cmd, mergedVars, true)
+
+	return tfexec.BackendConfig(fmt.Sprintf("storage_account_name=%s", account))
+}
+
+func configureAzureFromEnv(cmd cobra.Command, mergedVars map[string]any) []tfexec.InitOption {
+	var opts []tfexec.InitOption
+
+	vars := [][]string{
+		{"environment", "ARM_ENVIRONMENT"},
+		{"endpoint", "ARM_ENDPOINT"},
+		{"metadata_host", "ARM_METADATA_HOSTNAME"},
+		{"snapshot", "ARM_SNAPSHOT"},
+		{"msi_endpoint", "ARM_MSI_ENDPOINT"},
+		{"use_msi", "ARM_USE_MSI"},
+		{"oidc_request_url", "ARM_OIDC_REQUEST_URL"},
+		{"oidc_request_token", "ARM_OIDC_REQUEST_TOKEN"},
+		{"oidc_token", "ARM_OIDC_TOKEN"},
+		{"oidc_token_file_path", "ARM_OIDC_TOKEN_FILE_PATH"},
+		{"use_oidc", "ARM_USE_OIDC"},
+		{"sas_token", "ARM_SAS_TOKEN"},
+		{"access_key", "ARM_ACCESS_KEY"},
+		{"use_azuread_auth", "ARM_USE_AZUREAD"},
+		{"client_id", "ARM_CLIENT_ID"},
+		{"client_certificate_password", "ARM_CLIENT_CERTIFICATE_PASSWORD"},
+		{"client_certificate_path", "ARM_CLIENT_CERTIFICATE_PATH"},
+		{"client_secret", "ARM_CLIENT_SECRET"},
+		{"subscription_id", "ARM_SUBSCRIPTION_ID"},
+		{"tenant_id", "ARM_TENANT_ID"},
+	}
+
+	for _, tuple := range vars {
+		v := sourceAzureVars(tuple[0], tuple[1], cmd, mergedVars)
+		if v != nil {
+			opts = append(opts, v)
+		}
+	}
+
+	return opts
+}
+
+func sourceAzureVars(varName string, envName string, cmd cobra.Command, mergedVars map[string]any) *tfexec.BackendConfigOption {
+	v := lib.GetVar(varName, cmd, mergedVars, false)
+	if v == "" && os.Getenv(envName) != "" {
+		v = os.Getenv(envName)
+	}
+	if v != "" {
+		return tfexec.BackendConfig(fmt.Sprintf("%s=%s", varName, v))
+	}
+	return nil
+}
+
+func configureAzureGroupName(cmd cobra.Command, mergedVars map[string]any) tfexec.InitOption {
+	name := lib.GetVar("name", cmd, mergedVars, true)
+
+	return tfexec.BackendConfig(fmt.Sprintf("resource_group_name=%s", name))
+}
+
+func configureGcpCredentials(cmd cobra.Command, mergedVars map[string]any) tfexec.InitOption {
 	file := lib.GetVar("credentials", cmd, mergedVars, false)
 
 	if file == "" {
@@ -233,6 +308,18 @@ func configureAwsBucket(cmd cobra.Command, mergedVars map[string]any) tfexec.Ini
 		)
 	}
 	return tfexec.BackendConfig(fmt.Sprintf("bucket=%s", bucket))
+}
+
+func configureAzureBucket(cmd cobra.Command, mergedVars map[string]any) tfexec.InitOption {
+	bucket := lib.GetVar("bucket", cmd, mergedVars, false)
+	if bucket == "" {
+		// no bucket defined, so generate a unique name
+		bucket = fmt.Sprintf("tf-state-%s-%s",
+			lib.GetVar("project", cmd, mergedVars, false),
+			lib.GetVar("account", cmd, mergedVars, true),
+		)
+	}
+	return tfexec.BackendConfig(fmt.Sprintf("container_name=%s", bucket))
 }
 
 func configureGcpBucket(cmd cobra.Command, mergedVars map[string]any) tfexec.InitOption {

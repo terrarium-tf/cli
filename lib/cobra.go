@@ -28,20 +28,20 @@ func Vars(cmd cobra.Command, env string, stackPath string) ([]string, map[string
 	vars := make(map[string]any)
 	var files []string
 
-	// collect local vars
-	f := readVarsFile(cmd, "local.tfvars.json", stackPath, &vars)
-	if f != "" {
-		files = append(files, f)
-	}
-
 	// collect global vars
-	f = readVarsFile(cmd, "global.tfvars.json", stackPath, &vars)
+	f := readVarsFile(cmd, "global.tfvars.json", stackPath, &vars)
 	if f != "" {
 		files = append(files, f)
 	}
 
 	// collect global env vars
 	f = readVarsFile(cmd, fmt.Sprintf("%s.tfvars.json", strings.ToLower(env)), stackPath+"/../", &vars)
+	if f != "" {
+		files = append(files, f)
+	}
+
+	// collect local vars
+	f = readVarsFile(cmd, "local.tfvars.json", stackPath, &vars)
 	if f != "" {
 		files = append(files, f)
 	}

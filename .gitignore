@@ -2,3 +2,4 @@
 dist/
 .idea
 example/stack/.terraform*
+vendor
