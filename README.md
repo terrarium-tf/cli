@@ -84,8 +84,7 @@ Use "terrarium [command] --help" for more information about a command.
 will internally run:
 
 ```
-terraform workspace select dev
-terraform version -json
+terraform workspace select stage
 terraform version
 terraform init -force-copy -input=false -backend=true -get=true -upgrade=true -backend-config=region=eu-central-1 -backend-config=bucket=tf-state-terrarium-cli-eu-central-1-455201159890 -backend-config=key=stack.tfstate -backend-config=dynamodb_table=terraform-lock-terrarium-cli-eu-central-1-455201159890
 ```
@@ -140,7 +139,7 @@ stack specific variables should be stored in `app.tfvars.json`
 
 for [AWS](https://developer.hashicorp.com/terraform/language/settings/backends/s3) we configure the s3 bucket and the (optional) dynamo state locking from these variables:
 
-* s3 bucket name : `"tf-state-{project}-{region}-{account}`
+* s3 bucket name : `tf-state-{project}-{region}-{account}`
 * dynamo table : `terraform-lock-{project}-{region}-{account}`
 * s3 file : `{name}.tfstate`
 * the AWS credentials should be provided by your shell environment
@@ -149,7 +148,7 @@ for [AWS](https://developer.hashicorp.com/terraform/language/settings/backends/s
 
 for [GCP](https://developer.hashicorp.com/terraform/language/settings/backends/gcs) we configure the bucket from these variables:
 
-* bucket name : `"tf-state-{project}`
+* bucket name : `tf-state-{project}`
 * credentials: read from the `credentials` variable or from the environment variables `GOOGLE_BACKEND_CREDENTIALS` or `GOOGLE_CREDENTIALS`
 * prefix: read from the `prefix` variable
 
