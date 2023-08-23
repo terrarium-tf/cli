@@ -197,7 +197,7 @@ for [GCP](https://developer.hashicorp.com/terraform/language/settings/backends/g
 for [Azure](https://developer.hashicorp.com/terraform/language/settings/backends/azurerm) we configure the bucket from these variables:
 
 * storage_account_name : read from the `account` variable
-* resource_group_name : read from the `name` variable
+* resource_group_name : read from the `project` variable
 * file (key) : `{name}.tfstate`
 * container_name (bucket): `tf-state-{project}-{account}`
 

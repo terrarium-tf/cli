@@ -273,7 +273,7 @@ func sourceAzureVars(varName string, envName string, cmd cobra.Command, mergedVa
 }
 
 func configureAzureGroupName(cmd cobra.Command, mergedVars map[string]any) tfexec.InitOption {
-	name := lib.GetVar("name", cmd, mergedVars, true)
+	name := lib.GetVar("project", cmd, mergedVars, true)
 
 	return tfexec.BackendConfig(fmt.Sprintf("resource_group_name=%s", name))
 }

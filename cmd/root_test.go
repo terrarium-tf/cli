@@ -99,7 +99,7 @@ func TestInitCommandAzure(t *testing.T) {
 	out := runCommand(t, args)
 	t.Log(out)
 
-	if !strings.Contains(out, "init -force-copy -input=false -backend=true -get=true -upgrade=true -backend-config=storage_account_name=terrariumaccount -backend-config=resource_group_name=terrarium -backend-config=key=terrarium.tfstate -backend-config=container_name=tf-state-terrarium-cli-terrariumaccount") {
+	if !strings.Contains(out, "init -force-copy -input=false -backend=true -get=true -upgrade=true -backend-config=storage_account_name=terrariumaccount -backend-config=resource_group_name=terrarium-cli -backend-config=key=terrarium.tfstate -backend-config=container_name=tf-state-terrarium-cli-terrariumaccount") {
 		t.Errorf("invalid init command")
 	}
 }
