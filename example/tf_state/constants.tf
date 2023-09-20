@@ -1,5 +1,5 @@
 locals {
-  # attach those tags to our resources
+  # attach these tags to our resources
   tags = {
     environment = "global"
     application = "terraform"

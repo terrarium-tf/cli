@@ -42,7 +42,7 @@ func NewRootCommand() *cobra.Command {
 	var rootCmd = &cobra.Command{
 		Use:   "terrarium [command] workspace path/to/stack",
 		Short: "run terraform with autoinjected var files",
-		Long: `Builds Terraform Commands, easing those steps:
+		Long: `Builds Terraform Commands, easing these steps:
 * collects defined var-files
 * switches to the given workspace (can create new one)
 * runs the given terraform command with the multiple -var-files options in correct order.
