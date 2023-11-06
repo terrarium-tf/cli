@@ -4,14 +4,14 @@
 
 [![Coverage Status](https://coveralls.io/repos/github/terrarium-tf/cli/badge.svg?branch=main)](https://coveralls.io/github/terrarium-tf/cli?branch=main)
 [![Test & Build](https://github.com/terrarium-tf/cli/actions/workflows/test.yml/badge.svg)](https://github.com/terrarium-tf/cli/actions/workflows/test.yml)
-![GitHub relea se (latest by date)](https://img.shields.io/github/v/release/terrarium-tf/cli)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/terrarium-tf/cli)
 
 **Builds Terraform Commands, easing those steps:**
 
 * collects defined var-files
 * switches to the given workspace (can create new one)
 * runs the given terraform command with the multiple -var-files options in correct order.
-* automatically detects `s3` or `gcs` backend
+* automatically detects `s3`, `gcs` or `azure` backend
 * local file for machine only parameters
 
 using those awesome tools:

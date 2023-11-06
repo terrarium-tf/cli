@@ -23,9 +23,12 @@ THE SOFTWARE.
 package cmd
 
 import (
+	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/terrarium-tf/cli/lib"
 	"os"
+	"strings"
+	"time"
 )
 
 func NewPlanCommand(root *cobra.Command) {
@@ -38,7 +41,12 @@ func NewPlanCommand(root *cobra.Command) {
 			tf, ctx, files, _ := lib.Executor(*cmd, args[0], args[1], true)
 
 			//plan
-			_, err := tf.Plan(ctx, buildPlanOptions(files, args, "")...)
+			planFile := ""
+			if os.Getenv("TF_IN_AUTOMATION") != "" {
+				planFile = fmt.Sprintf("%s-%s.tfplan", strings.Replace(time.Now().Format(time.RFC3339), ":", "-", -1), args[0])
+			}
+
+			_, err := tf.Plan(ctx, buildPlanOptions(files, args, planFile)...)
 			if err != nil {
 				os.Exit(1)
 			}
