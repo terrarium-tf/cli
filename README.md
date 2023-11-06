@@ -6,7 +6,7 @@
 [![Test & Build](https://github.com/terrarium-tf/cli/actions/workflows/test.yml/badge.svg)](https://github.com/terrarium-tf/cli/actions/workflows/test.yml)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/terrarium-tf/cli)
 
-**Builds Terraform Commands, easing those steps:**
+**Builds Terraform Commands, easing these steps:**
 
 * collects defined var-files
 * switches to the given workspace (can create new one)
@@ -14,7 +14,7 @@
 * automatically detects `s3`, `gcs` or `azure` backend
 * local file for machine only parameters
 
-using those awesome tools:
+using these awesome tools:
 
 * [terraform-exec](https://github.com/hashicorp/terraform-exec)
 * [cobra](https://github.com/spf13/cobra)
@@ -43,7 +43,7 @@ download the binary matching your OS from [here](https://github.com/terrarium-tf
 
 ```
 $ ./terrarium
-Builds Terraform Commands, easing those steps:
+Builds Terraform Commands, easing these steps:
 * collects defined var-files
 * switches to the given workspace (can create new one)
 * runs the given terraform command with the multiple -var-files options in correct order.
@@ -79,7 +79,7 @@ Use "terrarium [command] --help" for more information about a command.
 
 > assuming the above stack setup,
 
-`terraform init stage example/stack`
+`terrarium init stage example/stack`
 
 will internally run:
 
@@ -107,14 +107,14 @@ terraform apply -auto-approve -input=false -lock=true -parallelism=10 -refresh=t
 jobs:
   global:
     - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
+      uses: aws-actions/configure-aws-credentials@v4
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: eu-central-1
 
     - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v1
+      uses: hashicorp/setup-terraform@v2
 
     - name: Setup Terrarium
       uses: terrarium-tf/github-action@vmaster
@@ -229,17 +229,19 @@ all optional variables from the documentation can be provided by their `ARM_*` e
 
 ## Development
 
-checkout the source and install golang dependencies with pip
+Checkout the source and install golang dependencies with:
 
 ```shell script
 $ go get
 ```
 
+You should then be able to run a local version of the project with:
+
 ```shell script
 $ go run main.go
 ```
 
-build the binary
+To build and distribute the binary:
 
 ```shell script
 $ goreleaser build --snapshot --rm-dist
