@@ -26,7 +26,6 @@ import (
 	"errors"
 	"github.com/spf13/cobra"
 	"github.com/terrarium-tf/cli/lib"
-	"os"
 )
 
 func NewUntaintCommand(root *cobra.Command) {
@@ -35,13 +34,10 @@ func NewUntaintCommand(root *cobra.Command) {
 		Short: "Untaints a given Terraform Resource from a State",
 		Args:  untaintArgsValidator,
 
-		Run: func(cmd *cobra.Command, args []string) {
+		RunE: func(cmd *cobra.Command, args []string) error {
 			tf, ctx, _, _ := lib.Executor(*cmd, args[0], args[1], true)
 
-			err := tf.Untaint(ctx, args[2])
-			if err != nil {
-				os.Exit(1)
-			}
+			return tf.Untaint(ctx, args[2])
 		},
 	}
 

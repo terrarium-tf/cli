@@ -42,7 +42,7 @@ download the binary matching your OS from [here](https://github.com/terrarium-tf
 ## Command
 
 ```
-$ ./terrarium
+$ terrarium
 Builds Terraform Commands, easing these steps:
 * collects defined var-files
 * switches to the given workspace (can create new one)
@@ -55,7 +55,7 @@ Usage:
   terrarium [command]
 
 Examples:
-terrarium [command] workspace path/to/stack -v -t echo
+terrarium plan production path/to/stack -v
 
 Available Commands:
   apply       Apply a given Terraform Stack
@@ -66,6 +66,8 @@ Available Commands:
   init        initializes a stack with optional remote state
   plan        Creates a diff between remote and local state and prints the upcoming changes
   remove      Removes a remote resource from the terraform state
+  taint       Taints a given Terraform Resource from a State
+  untaint     Untaints a given Terraform Resource from a State
 
 Flags:
   -h, --help               help for terrarium
@@ -244,7 +246,7 @@ $ go run main.go
 To build and distribute the binary:
 
 ```shell script
-$ goreleaser build --snapshot --rm-dist
+$ goreleaser build --snapshot --clean
 $ cp ./dist/terrarium_xxx/terrarium /usr/local/bin/terrarium
 $ chmod a+x /usr/local/bin/terrarium
 ```

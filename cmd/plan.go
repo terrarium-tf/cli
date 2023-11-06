@@ -37,7 +37,7 @@ func NewPlanCommand(root *cobra.Command) {
 		Short: "Creates a diff between remote and local state and prints the upcoming changes",
 		Args:  lib.ArgsValidator,
 
-		Run: func(cmd *cobra.Command, args []string) {
+		RunE: func(cmd *cobra.Command, args []string) error {
 			tf, ctx, files, _ := lib.Executor(*cmd, args[0], args[1], true)
 
 			//plan
@@ -47,19 +47,18 @@ func NewPlanCommand(root *cobra.Command) {
 			}
 
 			diff, err := tf.Plan(ctx, buildPlanOptions(files, args, planFile)...)
+
 			// behave exactly like terraform:
 			/*
 				0 = Succeeded with empty diff (no changes)
 				1 = Error
 				2 = Succeeded with non-empty diff (changes present)
 			*/
-			if err != nil {
-				os.Exit(1)
-			}
-
 			if diff {
 				os.Exit(2)
 			}
+
+			return err
 		},
 	}
 

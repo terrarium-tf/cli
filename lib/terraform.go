@@ -29,14 +29,14 @@ func Executor(cmd cobra.Command, workspace string, path string, switchWorkspace 
 	binary, err := cmd.Parent().PersistentFlags().GetString("terraform")
 
 	if err != nil {
-		log.Fatal("cant find terraform flag", err)
+		cmd.PrintErr("cant find terraform flag", err)
 	}
 
 	tf, err := tfexec.NewTerraform(path, binary)
 	tf.SetColor(true)
 
 	if err != nil {
-		log.Fatal("cant create terraform instance", err)
+		cmd.PrintErr(err.Error())
 	}
 
 	tf.SetStdout(cmd.OutOrStdout())
@@ -55,8 +55,12 @@ func Executor(cmd cobra.Command, workspace string, path string, switchWorkspace 
 
 func Workspace(tf *tfexec.Terraform, ctx context.Context, cmd cobra.Command, name string) {
 	tf.SetStdout(nil)
-	workspaces, current, _ := tf.WorkspaceList(ctx)
+	workspaces, current, err := tf.WorkspaceList(ctx)
 	tf.SetStdout(cmd.OutOrStdout())
+
+	if err != nil {
+		cmd.PrintErr(err.Error())
+	}
 
 	exists := false
 	for _, ws := range workspaces {
@@ -65,10 +69,16 @@ func Workspace(tf *tfexec.Terraform, ctx context.Context, cmd cobra.Command, nam
 		}
 	}
 	if !exists {
-		_ = tf.WorkspaceNew(ctx, name)
+		err := tf.WorkspaceNew(ctx, name)
+		if err != nil {
+			cmd.PrintErr(err.Error())
+		}
 	}
 
 	if current != name {
-		_ = tf.WorkspaceSelect(ctx, name)
+		err := tf.WorkspaceSelect(ctx, name)
+		if err != nil {
+			cmd.PrintErr(err.Error())
+		}
 	}
 }

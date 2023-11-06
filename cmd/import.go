@@ -28,7 +28,6 @@ import (
 	"github.com/hashicorp/terraform-exec/tfexec"
 	"github.com/spf13/cobra"
 	"github.com/terrarium-tf/cli/lib"
-	"os"
 )
 
 func NewImportCommand(root *cobra.Command) {
@@ -37,13 +36,10 @@ func NewImportCommand(root *cobra.Command) {
 		Short:   "Import a remote resource into a local terraform resource",
 		Example: "import prod path/to/stack aws_s3_bucket.example some_aws_bucket_name",
 		Args:    importArgsValidator,
-		Run: func(cmd *cobra.Command, args []string) {
+		RunE: func(cmd *cobra.Command, args []string) error {
 			tf, ctx, files, _ := lib.Executor(*cmd, args[0], args[1], true)
 
-			err := tf.Import(ctx, args[2], args[3], buildImportOptions(files, args)...)
-			if err != nil {
-				os.Exit(1)
-			}
+			return tf.Import(ctx, args[2], args[3], buildImportOptions(files, args)...)
 		},
 	}
 

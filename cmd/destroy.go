@@ -27,7 +27,6 @@ import (
 	"github.com/hashicorp/terraform-exec/tfexec"
 	"github.com/spf13/cobra"
 	"github.com/terrarium-tf/cli/lib"
-	"os"
 )
 
 func NewDestroyCommand(root *cobra.Command) {
@@ -36,13 +35,10 @@ func NewDestroyCommand(root *cobra.Command) {
 		Short: "Destroy a given Terraform stack",
 		Args:  lib.ArgsValidator,
 
-		Run: func(cmd *cobra.Command, args []string) {
+		RunE: func(cmd *cobra.Command, args []string) error {
 			tf, ctx, files, _ := lib.Executor(*cmd, args[0], args[1], true)
 
-			err := tf.Destroy(ctx, buildDestroyOptions(files, args)...)
-			if err != nil {
-				os.Exit(1)
-			}
+			return tf.Destroy(ctx, buildDestroyOptions(files, args)...)
 		},
 	}
 

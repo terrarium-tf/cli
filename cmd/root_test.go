@@ -104,6 +104,17 @@ func TestInitCommandAzure(t *testing.T) {
 	}
 }
 
+func TestTaintCommand(t *testing.T) {
+	t.Skip("test not yet fully working due to terrafrom version checks")
+	args := []string{"taint", "dev", "../example/stack", "-t", "echo", "aws_s3_bucket.test"}
+	out := runCommand(t, args)
+	t.Log(out)
+
+	if !strings.Contains(out, "taint aws_s3_bucket.test") {
+		t.Errorf("invalid taint command")
+	}
+}
+
 func TestApplyCommand(t *testing.T) {
 	args := []string{"apply", "dev", "../example/stack", "-t", "echo"}
 	now := strings.Replace(time.Now().Format(time.RFC3339), ":", "-", -1)
@@ -124,7 +135,7 @@ func TestApplyCommand(t *testing.T) {
 		t.Errorf("invalid plan command")
 	}
 	if !strings.Contains(out, fmt.Sprintf("apply -auto-approve -input=false -lock=true -parallelism=10 -refresh=true %s/%s-dev.tfplan", root, now)) {
-		t.Errorf("invalid apply command")
+		t.Errorf("invalid apply command: %s", out)
 	}
 }
 
@@ -215,7 +226,7 @@ func TestRemoveCommandWithVerbose(t *testing.T) {
 }
 
 func TestUntaintCommand(t *testing.T) {
-	t.Skip("test not yet fully working")
+	t.Skip("test not yet fully working due to terrafrom version checks")
 	args := []string{"untaint", "dev", "../example/stack", "-t", "echo", "aws_s3_bucket.test"}
 	out := runCommand(t, args)
 	t.Log(out)

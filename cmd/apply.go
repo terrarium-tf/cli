@@ -41,7 +41,7 @@ func NewApplyCommand(root *cobra.Command) {
 		Long:  `Creates a plan file (which might be uploaded to CI-Artifacts for auditing) and applies this exact plan file.`,
 		Args:  lib.ArgsValidator,
 
-		Run: func(cmd *cobra.Command, args []string) {
+		RunE: func(cmd *cobra.Command, args []string) error {
 			tf, ctx, files, _ := lib.Executor(*cmd, args[0], args[1], true)
 
 			planFile := fmt.Sprintf("%s-%s.tfplan", strings.Replace(time.Now().Format(time.RFC3339), ":", "-", -1), args[0])
@@ -51,17 +51,21 @@ func NewApplyCommand(root *cobra.Command) {
 			_, err := tf.Plan(ctx, buildPlanOptions(files, args, planFile)...)
 
 			if err != nil {
-				os.Exit(1)
+				return err
 			}
+
 			//apply
 			err = tf.Apply(ctx, tfexec.DirOrPlan(planFile))
 			if err != nil {
-				os.Exit(1)
+				return err
 			}
 
-			if os.Getenv("TF_IN_AUTOMATION") == "" {
-				_ = os.Remove(planFile)
+			// if we are not in automation remove the maybe existing planfile
+			if _, err := os.Stat(planFile); err == nil && os.Getenv("TF_IN_AUTOMATION") == "" {
+				return os.Remove(planFile)
 			}
+
+			return nil
 		},
 	}
 

@@ -28,25 +28,25 @@ import (
 	"github.com/terrarium-tf/cli/lib"
 )
 
-func NewRemoveCommand(root *cobra.Command) {
-	var removeCmd = &cobra.Command{
-		Use:     "remove workspace path/to/stack tf_resource_id",
-		Short:   "Removes a remote resource from the terraform state",
-		Example: "remove prod path/to/stack aws_s3_bucket.example",
-		Args:    removeArgsValidator,
+func NewTaintCommand(root *cobra.Command) {
+	var untaintCmd = &cobra.Command{
+		Use:   "taint workspace path/to/stack tf_resource",
+		Short: "Taints a given Terraform Resource from a State",
+		Args:  taintArgsValidator,
+
 		RunE: func(cmd *cobra.Command, args []string) error {
 			tf, ctx, _, _ := lib.Executor(*cmd, args[0], args[1], true)
 
-			return tf.StateRm(ctx, args[2])
+			return tf.Taint(ctx, args[2])
 		},
 	}
 
-	root.AddCommand(removeCmd)
+	root.AddCommand(untaintCmd)
 }
 
-func removeArgsValidator(cmd *cobra.Command, args []string) error {
+func taintArgsValidator(cmd *cobra.Command, args []string) error {
 	if len(args) < 3 {
-		return errors.New("requires a workspace,a stack path, a remote resource and a tf resource")
+		return errors.New("requires a workspace,a stack path and a tf resource")
 	}
 
 	return lib.ArgsValidator(cmd, args)
