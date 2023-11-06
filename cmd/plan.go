@@ -46,9 +46,19 @@ func NewPlanCommand(root *cobra.Command) {
 				planFile = fmt.Sprintf("%s-%s.tfplan", strings.Replace(time.Now().Format(time.RFC3339), ":", "-", -1), args[0])
 			}
 
-			_, err := tf.Plan(ctx, buildPlanOptions(files, args, planFile)...)
+			diff, err := tf.Plan(ctx, buildPlanOptions(files, args, planFile)...)
+			// behave exactly like terraform:
+			/*
+				0 = Succeeded with empty diff (no changes)
+				1 = Error
+				2 = Succeeded with non-empty diff (changes present)
+			*/
 			if err != nil {
 				os.Exit(1)
+			}
+
+			if diff {
+				os.Exit(2)
 			}
 		},
 	}
