@@ -21,10 +21,21 @@ THE SOFTWARE.
 */
 package main
 
-import "github.com/terrarium-tf/cli/cmd"
+import (
+	"fmt"
+	"github.com/terrarium-tf/cli/cmd"
+)
+
+var (
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
+)
 
 func main() {
 	rootCmd := cmd.NewRootCommand()
+	rootCmd.Version = fmt.Sprintf("version: %s (%s) - %s", version, commit, date)
+
 	cmd.AddChildCommands(rootCmd)
 	cmd.Execute(rootCmd)
 }
