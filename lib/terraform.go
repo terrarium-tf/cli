@@ -40,12 +40,14 @@ func Executor(cmd cobra.Command, workspace string, path string, switchWorkspace 
 	}
 
 	tf.SetStdout(cmd.OutOrStdout())
-	tf.SetStderr(cmd.ErrOrStderr())
+	if cmd.Flag("verbose").Changed {
+		tf.SetStderr(cmd.ErrOrStderr())
+	}
 
 	ctx := context.Background()
 
 	if switchWorkspace {
-		Workspace(tf, ctx, cmd, workspace)
+		ensureAndSwitchWorkspace(tf, ctx, cmd, workspace)
 	}
 
 	files, vars := Vars(cmd, workspace, path)
@@ -53,13 +55,14 @@ func Executor(cmd cobra.Command, workspace string, path string, switchWorkspace 
 	return tf, context.Background(), files, vars
 }
 
-func Workspace(tf *tfexec.Terraform, ctx context.Context, cmd cobra.Command, name string) {
+func ensureAndSwitchWorkspace(tf *tfexec.Terraform, ctx context.Context, cmd cobra.Command, name string) {
 	tf.SetStdout(nil)
 	workspaces, current, err := tf.WorkspaceList(ctx)
 	tf.SetStdout(cmd.OutOrStdout())
 
 	if err != nil {
-		cmd.PrintErr(err.Error())
+		cmd.PrintErr(err)
+		return
 	}
 
 	exists := false
@@ -71,14 +74,16 @@ func Workspace(tf *tfexec.Terraform, ctx context.Context, cmd cobra.Command, nam
 	if !exists {
 		err := tf.WorkspaceNew(ctx, name)
 		if err != nil {
-			cmd.PrintErr(err.Error())
+			cmd.PrintErr(err)
+			return
 		}
 	}
 
 	if current != name {
 		err := tf.WorkspaceSelect(ctx, name)
 		if err != nil {
-			cmd.PrintErr(err.Error())
+			cmd.PrintErr(err)
+			return
 		}
 	}
 }
