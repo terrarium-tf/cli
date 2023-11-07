@@ -1,8 +1,7 @@
-provider "aws" {
-  region = "eu-central-1"
+provider "google" {
+  project     = var.project
+  region      = var.region
 }
-
-data "aws_caller_identity" "self" {}
 
 variable "region" {}
 variable "environment" {}
@@ -13,11 +12,11 @@ variable "foo" {
   type = bool
 }
 
-resource "aws_s3_bucket" "test" {
-  bucket = "test-${var.environment}-${data.aws_caller_identity.self.account_id}"
-}
 
-resource "aws_s3_bucket" "state" {}
+resource "google_storage_bucket" "state" {
+  location = "EU"
+  name = "${var.project}-${var.account}-test"
+}
 
 terraform {
   backend "gcs"  {
@@ -25,5 +24,5 @@ terraform {
 }
 
 output "foo" {
-  value = "test-${var.environment}-${data.aws_caller_identity.self.account_id}"
+  value = google_storage_bucket.state.id
 }
